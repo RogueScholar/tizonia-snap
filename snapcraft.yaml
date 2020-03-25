@@ -1,12 +1,55 @@
 name: tizonia
-version: 0.19.0
-summary: Tizonia command-line cloud music player.
+title: The Tizonia Project
+base: core20
+version: 0.21.0
+summary: Command-line cloud music player
 description: |
   Command-line cloud music player for Linux with support for Spotify,
-  Google Play Music, YouTube, SoundCloud, Plex and Chromecast.
-grade: stable
+  Google Play Music, YouTube, SoundCloud, TuneIn Radio, Plex and Chromecast
+type: app
 confinement: strict
-base: core18
+icon: tizonia_logo-256px.png
+license: MIT
+grade: devel
+adopt-info: tizonia
+architectures: [amd64, i386, armhf]
+assumes:
+- snapd2.40
+- common-data-dir
+- snap-env
+
+apps:
+  tizonia:
+    adapter: full
+    command: tizonia
+    common-id: com.aratelia.tiz.tizonia
+    desktop: usr/share/applications/tizonia.desktop
+    environment:
+      ARCH: "$(gcc -dumpmachine)"
+      TIZONIA_PLUGINS_DIR: "$SNAP/usr/lib/tizonia0-plugins12"
+      XDG_CONFIG_DIRS: "$SNAP/etc/xdg:$XDG_CONFIG_DIRS"
+    plugs:
+      - home
+      - network
+      - network-bind
+      - pulseaudio
+      - process-control
+      - alsa
+      - removable-media
+      - x11
+      - tizrmd-plug
+      - tizcastd-plug
+    slots:
+      - mpris
+
+  tizrmd:
+    command: usr/bin/tizrmd
+    slots:
+      - tizrmd-slot
+  tizcastd:
+    command: usr/bin/tizcastd
+    slots:
+      - tizcastd-slot
 
 slots:
   tizrmd-slot: # Tizonia's OpenMAX IL resource management daemon
@@ -28,34 +71,9 @@ plugs:
     bus: session
     name: com.aratelia.tiz.tizcastd
 
-apps:
-  tizrmd:
-    command: usr/bin/tizrmd
-    slots:
-      - tizrmd-slot
-
-  tizcastd:
-    command: usr/bin/tizcastd
-    slots:
-      - tizcastd-slot
-
   tizonia:
-    desktop: usr/share/applications/tizonia.desktop
     command: bin/tizonia-snap-wrapper.sh
     completer: usr/share/bash-completion/completions/tizonia
-    plugs:
-      - home
-      - network
-      - network-bind
-      - pulseaudio
-      - process-control
-      - alsa
-      - removable-media
-      - x11
-      - tizrmd-plug
-      - tizcastd-plug
-    slots:
-      - mpris
 
 parts:
   pypideps:
